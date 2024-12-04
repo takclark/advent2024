@@ -35,11 +35,9 @@ func solve(input string) (int, int) {
 	for i, row := range g.chars {
 		for j := range row {
 			total1 += g.baseSearch(i, j) // count XMAS's starting here
-		}
-	}
-
-	for i := range len(g.chars) - 2 {
-		for j := range len(g.chars[i]) - 2 {
+			if i > len(g.chars)-3 || j > len(row)-3 {
+				continue
+			}
 			total2 += g.findXShapesMASes(i, j)
 		}
 	}
