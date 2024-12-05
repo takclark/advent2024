@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"slices"
+	"sort"
 	"strings"
 
 	"github.com/takclark/advent2024/parsing"
@@ -33,13 +33,14 @@ func solve(input string) (int, int) {
 	fmt.Printf("%+v\n", u)
 	var total1, total2, n int
 	for _, p := range prints {
-		eval := u.evaluate(p)
-		total1 += u.evaluate(p)
-		n += u.naiveEvaluate(p)
+		eval := u.naiveEvaluate(p)
+		total1 += eval
 
 		if eval == 0 {
-			ordered := u.sort(p)
-			total2 += ordered[(len(ordered) / 2)]
+			for range len(p) {
+				u.sort(p)
+			}
+			total2 += p[(len(p) / 2)]
 		}
 
 	}
@@ -105,12 +106,10 @@ func (u *updater) populatePriorities() {
 	u.priorities = p
 }
 
-func (u *updater) sort(print []int) []int {
-	slices.SortFunc(print, func(a, b int) int {
-		return -1
+func (u *updater) sort(print []int) {
+	sort.Slice(print, func(a, b int) bool {
+		return u.allow(print[a], print[b])
 	})
-
-	return print
 }
 
 func parseInput(input string) ([]rule, [][]int) {
