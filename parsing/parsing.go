@@ -21,8 +21,8 @@ func MustParse(s string) int {
 	return i
 }
 
-func SpaceSeparatedStringToIntSlice(s string) []int {
-	nums := strings.Split(s, " ")
+func SeparatedStringToIntSlice(s, sep string) []int {
+	nums := strings.Split(s, sep)
 	nums = slices.DeleteFunc(nums, func(t string) bool {
 		return t == ""
 	})

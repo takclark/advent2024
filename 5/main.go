@@ -21,31 +21,24 @@ type rule struct {
 }
 
 type updater struct {
-	rules      []rule
-	priorities map[int]int
+	rules []rule
 }
 
 func solve(input string) (int, int) {
 	rules, prints := parseInput(input)
 
 	u := &updater{rules: rules}
-	u.populatePriorities()
-	fmt.Printf("%+v\n", u)
-	var total1, total2, n int
+	var total1, total2 int
 	for _, p := range prints {
-		eval := u.naiveEvaluate(p)
+		eval := u.evaluate(p)
 		total1 += eval
 
 		if eval == 0 {
-			for range len(p) {
-				u.sort(p)
-			}
+			u.sort(p)
 			total2 += p[(len(p) / 2)]
 		}
 
 	}
-
-	fmt.Println("N:", n)
 
 	return total1, total2
 }
@@ -54,22 +47,7 @@ func solve(input string) (int, int) {
 func (u *updater) evaluate(print []int) int {
 	for i := 1; i < len(print); i++ {
 		for j := 0; j < i; j++ {
-			if u.priorities[print[i]] < u.priorities[print[j]] {
-				fmt.Printf("not allowed to print %d before %d! %v is invalid.\n", print[j], print[i], print)
-				return 0
-			}
-		}
-	}
-
-	return print[(len(print) / 2)]
-}
-
-// return the middle integer if print is valid according to rules. otherwise return 0.
-func (u *updater) naiveEvaluate(print []int) int {
-	for i := 1; i < len(print); i++ {
-		for j := 0; j < i; j++ {
 			if !u.allow(print[j], print[i]) {
-				fmt.Printf("NAIVE: not allowed to print %d before %d! %v is invalid.\n", print[j], print[i], print)
 				return 0
 			}
 		}
@@ -88,28 +66,12 @@ func (u *updater) allow(b, a int) bool {
 	return true
 }
 
-func (u *updater) populatePriorities() {
-	p := make(map[int]int)
-
-	for _, r := range u.rules {
-		if _, ok := p[r.before]; !ok {
-			p[r.before] = 0
-		}
-
-		if p[r.after] > p[r.before] {
-			continue
-		}
-
-		p[r.after] = p[r.before] + 1
-	}
-
-	u.priorities = p
-}
-
 func (u *updater) sort(print []int) {
-	sort.Slice(print, func(a, b int) bool {
-		return u.allow(print[a], print[b])
-	})
+	for range len(print) { // bless me elves for I have sinned
+		sort.Slice(print, func(a, b int) bool {
+			return u.allow(print[a], print[b])
+		})
+	}
 }
 
 func parseInput(input string) ([]rule, [][]int) {
@@ -125,7 +87,6 @@ func parseInput(input string) ([]rule, [][]int) {
 		}
 
 		if part == 0 {
-			// still parsing rules
 			r := rule{}
 			fmt.Sscanf(l, "%d|%d", &r.before, &r.after)
 			rules = append(rules, r)
