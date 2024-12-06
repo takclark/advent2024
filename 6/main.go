@@ -36,6 +36,7 @@ func solve(input string) (int, int) {
 		m.wipe(initialGuardDir, initialGuardPos)
 		m.grid[c.y][c.x] = "O"
 		total2 += m.traverse()
+		m.grid[c.y][c.x] = "."
 	}
 
 	return total1, total2
@@ -54,7 +55,6 @@ func parseInput(input string) *labMap {
 		if x != -1 {
 			startingGuardPos = tuple{x, y}
 		}
-		// guard may re-cross her position
 	}
 
 	return &labMap{
@@ -76,8 +76,6 @@ func (m *labMap) traverse() int {
 			m.visited[m.guardPos] = map[tuple]struct{}{}
 		}
 		m.visited[m.guardPos][m.guardDir] = struct{}{}
-
-		m.grid[m.guardPos.y][m.guardPos.x] = "X"
 
 		next := tuple{
 			x: m.guardPos.x + m.guardDir.x,
@@ -105,13 +103,6 @@ func (m *labMap) wipe(dir, pos tuple) {
 	m.visited = map[tuple]map[tuple]struct{}{}
 	m.guardDir = dir
 	m.guardPos = pos
-	for i := range m.grid {
-		for j := range m.grid[i] {
-			if m.grid[i][j] == "X" || m.grid[i][j] == "O" {
-				m.grid[i][j] = "."
-			}
-		}
-	}
 }
 
 func turn(t tuple) tuple {
