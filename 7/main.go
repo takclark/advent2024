@@ -24,13 +24,22 @@ func solve(input string) (int64, int64) {
 	eqs := parseInput(input)
 
 	var total1, total2 int64
+	s1 := solver{includeConcat: false}
+	s2 := solver{includeConcat: true}
 	for _, e := range eqs {
-		if e.couldWork() > 0 {
+		if s1.couldWork(e) > 0 {
 			total1 += e.result
+		}
+		if s2.couldWork(e) > 0 {
+			total2 += e.result
 		}
 	}
 
 	return total1, total2
+}
+
+type solver struct {
+	includeConcat bool
 }
 
 type eq struct {
@@ -38,12 +47,17 @@ type eq struct {
 	operands []int64
 }
 
-// return the number of ways in which eq could be solved with +/* between operands.
-func (e *eq) couldWork() int {
-	return e.waysToSolve(0, opPlus, 0) + e.waysToSolve(1, opMul, 0)
+// return the number of ways in which eq could be solved
+func (s *solver) couldWork(e eq) int {
+	ways := s.waysToSolve(e, 0, opPlus, 0) + s.waysToSolve(e, 1, opMul, 0)
+	if s.includeConcat {
+		ways += s.waysToSolve(e, 0, opCat, 0)
+	}
+
+	return ways
 }
 
-func (e *eq) waysToSolve(running int64, op, i int) int {
+func (s *solver) waysToSolve(e eq, running int64, op, i int) int {
 	// fmt.Println("ways to solve for:", e)
 	// fmt.Printf("with running: %d, op: %d, i: %d\n", running, op, i)
 	tally := do(running, e.operands[i], op)
@@ -56,7 +70,12 @@ func (e *eq) waysToSolve(running int64, op, i int) int {
 		return 0
 	}
 
-	return e.waysToSolve(tally, opPlus, i+1) + e.waysToSolve(tally, opMul, i+1)
+	ways := s.waysToSolve(e, tally, opPlus, i+1) + s.waysToSolve(e, tally, opMul, i+1)
+	if s.includeConcat {
+		ways += s.waysToSolve(e, tally, opCat, i+1)
+	}
+
+	return ways
 }
 
 func do(m, n int64, op int) int64 {
