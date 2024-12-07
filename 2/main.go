@@ -80,7 +80,7 @@ func solve(input string) (int, int) {
 		if l == "" {
 			continue
 		}
-		r := report(parsing.SpaceSeparatedStringToIntSlice(l))
+		r := report(parsing.SeparatedStringToIntSlice(l, " "))
 		total1 += r.isSafe()
 		total2 += r.isSafeWithDampener()
 	}

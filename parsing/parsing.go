@@ -21,6 +21,15 @@ func MustParse(s string) int {
 	return i
 }
 
+func MustParseInt64(s string) int64 {
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return i
+}
+
 func SeparatedStringToIntSlice(s, sep string) []int {
 	nums := strings.Split(s, sep)
 	nums = slices.DeleteFunc(nums, func(t string) bool {
@@ -30,6 +39,20 @@ func SeparatedStringToIntSlice(s, sep string) []int {
 	a := []int{}
 	for _, v := range nums {
 		a = append(a, MustParse(v))
+	}
+
+	return a
+}
+
+func SeparatedStringToInt64Slice(s, sep string) []int64 {
+	nums := strings.Split(s, sep)
+	nums = slices.DeleteFunc(nums, func(t string) bool {
+		return t == ""
+	})
+
+	a := []int64{}
+	for _, v := range nums {
+		a = append(a, MustParseInt64(v))
 	}
 
 	return a
