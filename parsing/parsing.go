@@ -9,7 +9,7 @@ import (
 
 func MustReadFile(filename string) string {
 	inBytes, _ := os.ReadFile(filename)
-	return string(inBytes)
+	return strings.TrimSpace(string(inBytes))
 }
 
 func MustParse(s string) int {
