@@ -37,12 +37,36 @@ type pair struct {
 }
 
 type solver struct {
-	ps   pebbles
 	memo map[pair]int64
 }
 
-func (s solver) lenAfter(n, ticks int64) int64 {
-	return 0
+func (s solver) solve(ps []int64, ticks int64) int64 {
+	var total int64
+	for _, n := range ps {
+		total += s.lenAfter(n, ticks)
+	}
+
+	return total
+}
+
+func (s *solver) lenAfter(n, ticks int64) int64 {
+	if ticks == 0 {
+		return 1
+	}
+
+	if v, ok := s.memo[pair{n, ticks}]; ok {
+		return v
+	}
+
+	res := next(n)
+	var total int64
+	for _, v := range res {
+		lenHere := s.lenAfter(v, ticks-1)
+		s.memo[pair{v, ticks - 1}] = lenHere
+		total += lenHere
+	}
+
+	return total
 }
 
 func next(n int64) []int64 {
@@ -66,12 +90,9 @@ func solve(input string) (int64, int64) {
 	ps := pebbles(parsing.SeparatedStringToInt64Slice(input, " "))
 	var total1, total2 int64
 
-	fmt.Println(ps)
-	for range 25 {
-		ps = ps.tick()
-	}
-
-	total1 = int64(len(ps))
+	s := solver{memo: make(map[pair]int64)}
+	total1 = s.solve(ps, 25)
+	total2 = s.solve(ps, 75)
 
 	return total1, total2
 }
